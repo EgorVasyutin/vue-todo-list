@@ -1,11 +1,14 @@
 <template>
-  <div class="modal-overlay">
+  <!--  <div class="modal-overlay" :style="{ display: isOpen ? 'flex' : 'none' }">-->
+  <div v-show="isOpen" class="modal-overlay">
     <div class="modal">
       <div class="modal-text">Редактировать задачу</div>
-      <input class="modal-input" />
+      <input class="modal-input" :value="todo.title" />
       <div class="modal-actions">
-        <button class="modal-btm redact" @click="close()">Редактировать</button>
-        <button class="modal-btm" @click="close()">Отмена</button>
+        <button class="modal-btm redact" @click="editTodo(todo.id)">
+          Редактировать
+        </button>
+        <button class="modal-btm" @click="close">Отмена</button>
       </div>
     </div>
   </div>
@@ -14,12 +17,36 @@
 <script>
 export default {
   name: "ModalWindow",
+  props: {
+    isOpen: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    todo: {
+      type: Object,
+      default: null,
+    },
+  },
   data() {
     return {};
   },
   methods: {
     close() {
-      document.querySelector(".modal-overlay").style.display = "none";
+      this.$emit("close-modal");
+    },
+    editTodo(id) {
+      fetch(`http://localhost:1000/api/todo/${id}`, {
+        body: JSON.stringify({
+          title: document.querySelector(".modal-input").value,
+          isDone: this.isDone,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => response.json())
+        .then(() => this.getTodos(id));
     },
   },
 };
@@ -82,7 +109,7 @@ export default {
   left: 0;
   right: 0;
   z-index: 1;
-  display: none;
+  display: flex;
   justify-content: center;
   opacity: 0.9;
 }
