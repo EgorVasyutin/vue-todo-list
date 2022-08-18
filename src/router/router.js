@@ -1,4 +1,9 @@
-import { createRouter, createWebHistory } from "vue-router/dist/vue-router";
+// import { createRouter, createWebHistory } from "vue-router/dist/vue-router";
+
+
+
+
+
 import RegForm from "@/pages/RegForm.vue";
 import MainPage from "@/pages/MainPage.vue";
 import LogForm from "@/pages/LogForm.vue";
