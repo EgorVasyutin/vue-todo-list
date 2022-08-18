@@ -63,6 +63,12 @@
 import ModalWindow from "@/components/ModalWindow";
 export default {
   name: "MainPage",
+  props: {
+    user: {
+      type: Object,
+      required: true,
+    },
+  },
   components: {
     ModalWindow,
   },
