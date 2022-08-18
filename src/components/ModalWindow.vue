@@ -1,9 +1,13 @@
 <template>
   <!--  <div class="modal-overlay" :style="{ display: isOpen ? 'flex' : 'none' }">-->
   <div v-show="isOpen" class="modal-overlay">
-    <div class="modal">
+    <div v-if="todo" class="modal">
       <div class="modal-text">Редактировать задачу</div>
-      <input class="modal-input" :value="todo.title" />
+      <input
+        class="modal-input"
+        :value="inputValue"
+        @input="(event) => (inputValue = event.target.value)"
+      />
       <div class="modal-actions">
         <button class="modal-btm redact" @click="editTodo(todo.id)">
           Редактировать
@@ -28,8 +32,15 @@ export default {
       default: null,
     },
   },
+  watch: {
+    todo() {
+      this.inputValue = this.todo.title;
+    },
+  },
   data() {
-    return {};
+    return {
+      inputValue: "",
+    };
   },
   methods: {
     close() {
@@ -37,8 +48,9 @@ export default {
     },
     editTodo(id) {
       fetch(`http://localhost:1000/api/todo/${id}`, {
+        method: "PUT",
         body: JSON.stringify({
-          title: document.querySelector(".modal-input").value,
+          title: this.inputValue,
           isDone: this.isDone,
         }),
         headers: {
@@ -46,7 +58,10 @@ export default {
         },
       })
         .then((response) => response.json())
-        .then(() => this.getTodos(id));
+        .then(() => {
+          this.$emit("update-todo");
+          this.close();
+        });
     },
   },
 };
@@ -102,7 +117,7 @@ export default {
 }
 
 .modal-overlay {
-  background-color: slategray;
+  background-color: rgba(112, 128, 144, 0.9);
   position: absolute;
   top: 0;
   bottom: 0;
@@ -111,6 +126,5 @@ export default {
   z-index: 1;
   display: flex;
   justify-content: center;
-  opacity: 0.9;
 }
 </style>
