@@ -101,9 +101,11 @@ export default {
           isDone: false,
         };
 
-        axiosInstance.post("todos", payload, {
-          headers: { "user-id": this.user.id },
-        });
+        axiosInstance
+          .post("todos", payload, {
+            headers: { "user-id": this.user.id },
+          })
+          .then(() => this.getTodos());
 
         // fetch("http://localhost:1000/api/todo", {
         //   method: "POST",
@@ -114,7 +116,7 @@ export default {
         //   headers: {
         //     "Content-Type": "application/json",
         //   },
-        // }).then(() => this.getTodos());
+        // });
         this.inputValue = "";
       }
     },

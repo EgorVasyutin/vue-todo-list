@@ -50,6 +50,16 @@ export default {
     }
   }
 
+  &:focus {
+    outline: 1px solid $color-primary;
+    outline-offset: 2px;
+  }
+
+  &:active {
+    outline: 3px solid $color-primary;
+    outline-offset: 2px;
+  }
+
   &:disabled {
     background-color: #f2f2f2;
     color: #d9d9d9;
