@@ -2,7 +2,7 @@
   <div v-show="isOpen" class="modal-overlay">
     <div class="modal">
       <header class="modal-header">
-        <div class="modal-title">Редактировать задачу</div>
+        <div class="modal-title">{{ title }}</div>
         <img
           :src="require('@/assets/img/close.svg')"
           alt="close"
@@ -14,8 +14,10 @@
       <slot />
 
       <footer class="modal-footer">
-        <app-button>Войти</app-button>
-        <app-button type="secondary">Отмена</app-button>
+        <slot name="footer">
+          <app-button>Войти</app-button>
+          <app-button type="secondary">Отмена</app-button>
+        </slot>
       </footer>
     </div>
   </div>
@@ -74,7 +76,7 @@ export default {
   margin: 200px auto 0;
   width: 500px;
   padding: 20px 24px;
-  border-radius: 5px;
+  border-radius: 8px;
   background-color: #fff;
   display: flex;
   flex-direction: column;
@@ -87,6 +89,8 @@ export default {
   }
 
   &-title {
+    font: bold 24px "lato-bold", sans-serif;
+    line-height: 32px;
   }
 
   &-footer {

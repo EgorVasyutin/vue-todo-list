@@ -9,17 +9,10 @@
         />
       </span>
 
-      <p v-if="user" class="user-name">Egor Vasyutin</p>
+      <p v-if="user" class="user-name">{{ user.username }}</p>
 
       <img :src="actionIconPath" :alt="userAction" />
     </div>
-
-    <!--    <div class="reg-log__container">-->
-    <!--      <a href="/login" onclick="router()" class="login">Войти</a>-->
-    <!--      <a href="/register" onclick="router()" class="register"-->
-    <!--        >Зарегистрироваться</a-->
-    <!--      >-->
-    <!--    </div>-->
   </header>
 </template>
 

@@ -29,14 +29,31 @@ export default {
   border-radius: 8px;
   font-size: 16px;
   line-height: 24px;
+  cursor: pointer;
+  transition: background-color 0.2s;
 
   &-primary {
     background-color: $color-primary;
     color: white;
+
+    &:hover {
+      background-color: darken($color-primary, 5);
+    }
   }
+
   &-secondary {
     background-color: $color-secondary;
     color: $color-text-primary;
+
+    &:hover {
+      background-color: darken($color-secondary, 5);
+    }
+  }
+
+  &:disabled {
+    background-color: #f2f2f2;
+    color: #d9d9d9;
+    cursor: not-allowed;
   }
 }
 </style>
