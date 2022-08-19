@@ -54,6 +54,9 @@
 
 <script>
 import ModalWindow from "@/components/ModalWindowEditTodo";
+
+import { axiosInstance } from "@/api/axiosInstance";
+
 export default {
   name: "MainPage",
   props: {
@@ -66,7 +69,7 @@ export default {
   data() {
     return {
       title: "",
-      inputValue: "",
+      inputValue: "123",
       todos: [],
       currentTodo: null,
       isDone: false,
@@ -75,15 +78,16 @@ export default {
     };
   },
   created() {
-    // this.getTodos();
+    this.getTodos();
   },
   methods: {
     getTodos() {
-      fetch("http://localhost:1000/api/todo")
-        .then((response) => response.json())
-        .then((data) => {
-          console.log(data);
-          this.todos = data;
+      axiosInstance
+        .get("todos", {
+          headers: { "user-id": this.user.id },
+        })
+        .then((response) => {
+          this.todos = response.data;
           this.todos.sort((a, b) => (a.id > b.id ? 1 : -1));
         });
     },
@@ -92,16 +96,25 @@ export default {
     },
     addNewTodo() {
       if (this.inputValue.length !== 0) {
-        fetch("http://localhost:1000/api/todo", {
-          method: "POST",
-          body: JSON.stringify({
-            title: this.inputValue,
-            isDone: false,
-          }),
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }).then(() => this.getTodos());
+        const payload = {
+          title: this.inputValue,
+          isDone: false,
+        };
+
+        axiosInstance.post("todos", payload, {
+          headers: { "user-id": this.user.id },
+        });
+
+        // fetch("http://localhost:1000/api/todo", {
+        //   method: "POST",
+        //   body: JSON.stringify({
+        //     title: this.inputValue,
+        //     isDone: false,
+        //   }),
+        //   headers: {
+        //     "Content-Type": "application/json",
+        //   },
+        // }).then(() => this.getTodos());
         this.inputValue = "";
       }
     },
