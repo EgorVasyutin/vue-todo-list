@@ -67,7 +67,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .modal {
   width: 500px;
   height: 170px;

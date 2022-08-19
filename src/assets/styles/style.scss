@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 @import 'fonts.scss';
+@import "vars.scss";
 @import 'components/modal.scss';
 @import 'components/todo.scss';
 
@@ -52,7 +53,7 @@
     font-size: 18px;
     line-height: 22px;
     cursor: pointer;
-    background-color: #3178c6;
+    background-color: $color-primary;
     color: white;
   }
 }

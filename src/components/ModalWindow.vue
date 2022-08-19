@@ -1,24 +1,29 @@
 <template>
-  <!--  <div class="modal-overlay" :style="{ display: isOpen ? 'flex' : 'none' }">-->
   <div v-show="isOpen" class="modal-overlay">
-    <div v-if="todo" class="modal">
-      <div class="modal-text">Редактировать задачу</div>
-      <input
-        class="modal-input"
-        :value="inputValue"
-        @input="(event) => (inputValue = event.target.value)"
-      />
-      <div class="modal-actions">
-        <button class="modal-btm redact" @click="editTodo(todo.id)">
-          Редактировать
-        </button>
-        <button class="modal-btm" @click="close">Отмена</button>
-      </div>
+    <div class="modal">
+      <header class="modal-header">
+        <div class="modal-title">Редактировать задачу</div>
+        <img
+          :src="require('@/assets/img/close.svg')"
+          alt="close"
+          class="close"
+          @click="close"
+        />
+      </header>
+
+      <slot />
+
+      <footer class="modal-footer">
+        <app-button>Войти</app-button>
+        <app-button type="secondary">Отмена</app-button>
+      </footer>
     </div>
   </div>
 </template>
 
 <script>
+import AppButton from "@/components/ui/AppButton";
+
 export default {
   name: "ModalWindow",
   props: {
@@ -27,10 +32,13 @@ export default {
       required: false,
       default: false,
     },
-    todo: {
-      type: Object,
-      default: null,
+    title: {
+      type: String,
+      default: "",
     },
+  },
+  components: {
+    AppButton,
   },
   watch: {
     todo() {
@@ -44,87 +52,50 @@ export default {
   },
   methods: {
     close() {
-      this.$emit("close-modal");
-    },
-    editTodo(id) {
-      fetch(`http://localhost:1000/api/todo/${id}`, {
-        method: "PUT",
-        body: JSON.stringify({
-          title: this.inputValue,
-          isDone: this.isDone,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-        .then((response) => response.json())
-        .then(() => {
-          this.$emit("update-todo");
-          this.close();
-        });
+      console.log("emitttts");
+      this.$emit("close");
     },
   },
 };
 </script>
 
-<style lang="scss">
-.modal {
-  width: 500px;
-  height: 170px;
-  background-color: #fff;
-  z-index: 2;
-  margin-top: 200px;
-  border-radius: 5px;
-  opacity: 1;
-
-  &-text {
-    font-family: "lato-bold", sans-serif;
-    font-size: 20px;
-    padding: 15px 0 0 15px;
-  }
-  &-input {
-    margin: 15px 0 0 15px;
-    border-radius: 5px;
-    width: 300px;
-    height: 20px;
-    border: 2px solid black;
-    font-family: "lato-bold", sans-serif;
-    font-size: 20px;
-    padding: 5px;
-    margin-top: 30px;
-  }
-  &-actions {
-    display: flex;
-    align-items: flex-end;
-    justify-content: flex-end;
-    padding-top: 20px;
-    gap: 10px;
-    margin-right: 15px;
-
-    .modal-btm {
-      width: 100px;
-      height: 44px;
-      font-family: "lato-regular", sans-serif;
-      border-radius: 8px;
-      font-weight: 400;
-      font-size: 14px;
-      line-height: 22px;
-      cursor: pointer;
-      background-color: #3178c6;
-      color: white;
-    }
-  }
-}
-
+<style lang="scss" scoped>
 .modal-overlay {
-  background-color: rgba(112, 128, 144, 0.9);
+  background-color: rgba(0, 0, 0, 0.3);
   position: absolute;
   top: 0;
   bottom: 0;
   left: 0;
   right: 0;
   z-index: 1;
+}
+
+.modal {
+  margin: 200px auto 0;
+  width: 500px;
+  padding: 20px 24px;
+  border-radius: 5px;
+  background-color: #fff;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  gap: 24px;
+
+  &-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &-title {
+  }
+
+  &-footer {
+    display: flex;
+    gap: 24px;
+  }
+}
+
+.close {
+  cursor: pointer;
 }
 </style>

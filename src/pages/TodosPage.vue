@@ -1,5 +1,5 @@
 <template>
-  <div class="page">
+  <div v-if="user" class="page">
     <div class="page__header">Мои задачи</div>
     <div class="create-todo">
       <label>
@@ -50,17 +50,10 @@
       <div class="counter">Количество задач: {{ todos.length }}</div>
     </div>
   </div>
-
-  <modal-window
-    :is-open="isEditModalOpen"
-    @close-modal="closeEditModal"
-    :todo="currentTodo"
-    @update-todo="getTodos"
-  ></modal-window>
 </template>
 
 <script>
-import ModalWindow from "@/components/ModalWindow";
+import ModalWindow from "@/components/ModalWindowEditTodo";
 export default {
   name: "MainPage",
   props: {
@@ -69,9 +62,7 @@ export default {
       required: true,
     },
   },
-  components: {
-    ModalWindow,
-  },
+
   data() {
     return {
       title: "",
@@ -84,7 +75,7 @@ export default {
     };
   },
   created() {
-    this.getTodos();
+    // this.getTodos();
   },
   methods: {
     getTodos() {
