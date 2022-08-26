@@ -1,13 +1,13 @@
 <template>
   <form class="flex flex-col gap-24">
     <app-input
-      v-model:email="emailModel"
+      v-model:model-value="emailModel"
       label="Электронная почта"
       placeholder="myemail@gmail.com"
       type="email"
     />
     <app-input
-      v-model:password="passwordModel"
+      v-model:model-value="passwordModel"
       label="Пароль"
       placeholder="минимум 6 символов"
       type="password"

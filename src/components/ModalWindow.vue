@@ -54,7 +54,6 @@ export default {
   },
   methods: {
     close() {
-      console.log("emitttts");
       this.$emit("close");
     },
   },

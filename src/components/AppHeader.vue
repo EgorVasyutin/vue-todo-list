@@ -11,7 +11,7 @@
 
       <p v-if="user" class="user-name">{{ user.username }}</p>
 
-      <img :src="actionIconPath" :alt="userAction" />
+      <img :src="actionIconPath" :alt="userAction" @click="openModal" />
     </div>
   </header>
 </template>
@@ -23,6 +23,12 @@ export default {
     user: {
       type: Object,
       default: null,
+    },
+  },
+  methods: {
+    openModal() {
+      console.log(213);
+      this.$emit("open-singin");
     },
   },
   computed: {

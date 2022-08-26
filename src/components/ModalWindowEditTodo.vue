@@ -1,7 +1,7 @@
 <template>
   <!--  <div class="modal-overlay" :style="{ display: isOpen ? 'flex' : 'none' }">-->
-  <div v-show="isOpen" class="modal-overlay">
-    <div v-if="todo" class="modal">
+  <div v-show="isEditModalOpen" class="modal-overlay" @open-edit="close">
+    <div v-if="true" class="modal">
       <div class="modal-text">Редактировать задачу</div>
       <input
         class="modal-input"
@@ -9,19 +9,26 @@
         @input="(event) => (inputValue = event.target.value)"
       />
       <div class="modal-actions">
-        <button class="modal-btm redact" @click="editTodo(todo.id)">
+        <app-button class="modal-btm redact" @click="editTodo(todo.id)">
           Редактировать
-        </button>
-        <button class="modal-btm" @click="close">Отмена</button>
+        </app-button>
+        <app-button @click="close">Отмена</app-button>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import { AppButton, AppInput } from "@/components/ui";
 export default {
   name: "ModalWindow",
+  components: { AppButton },
   props: {
+    isEditModalOpen: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
     isOpen: {
       type: Boolean,
       required: false,
@@ -47,7 +54,7 @@ export default {
       this.$emit("close-modal");
     },
     editTodo(id) {
-      fetch(`http://localhost:1000/api/todo/${id}`, {
+      fetch(`http://localhost:1000/api/todos/${id}`, {
         method: "PUT",
         body: JSON.stringify({
           title: this.inputValue,
@@ -55,6 +62,7 @@ export default {
         }),
         headers: {
           "Content-Type": "application/json",
+          "user-id": this.user.id,
         },
       })
         .then((response) => response.json())
@@ -78,20 +86,17 @@ export default {
   opacity: 1;
 
   &-text {
-    font-family: "lato-bold", sans-serif;
-    font-size: 20px;
+    font: 14px "lato-regular", sans-serif;
+    color: #5a5a5a;
     padding: 15px 0 0 15px;
   }
   &-input {
+    width: 70%;
     margin: 15px 0 0 15px;
-    border-radius: 5px;
-    width: 300px;
-    height: 20px;
-    border: 2px solid black;
-    font-family: "lato-bold", sans-serif;
-    font-size: 20px;
-    padding: 5px;
-    margin-top: 30px;
+    padding: 12px 16px 13px;
+    background-color: #f3f3f3;
+    outline: none;
+    border-radius: 8px;
   }
   &-actions {
     display: flex;
@@ -102,7 +107,6 @@ export default {
     margin-right: 15px;
 
     .modal-btm {
-      width: 100px;
       height: 44px;
       font-family: "lato-regular", sans-serif;
       border-radius: 8px;

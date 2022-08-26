@@ -1,19 +1,25 @@
 <template>
   <form class="flex flex-col gap-24">
     <app-input
-      v-model:email="emailModel"
+      v-model:model-value="usernameModel"
+      label="Полное имя"
+      placeholder="Иванов Иванович"
+      type="email"
+    />
+    <app-input
+      v-model:model-value="emailModel"
       label="Электронная почта"
       placeholder="myemail@gmail.com"
       type="email"
     />
     <app-input
-      v-model:password="passwordModel"
+      v-model:model-value="passwordModel"
       label="Пароль"
       placeholder="минимум 6 символов"
       type="password"
     />
     <app-input
-      v-model:password="repeatPasswordModel"
+      v-model:model-value="repeatPasswordModel"
       label="Повторите пароль"
       placeholder="минимум 6 символов"
       type="password"
@@ -30,6 +36,10 @@ export default {
     AppInput,
   },
   props: {
+    username: {
+      type: String,
+      default: "",
+    },
     email: {
       type: String,
       default: "",
@@ -43,9 +53,15 @@ export default {
       default: "",
     },
   },
-  emits: ["update:email", "update:password"],
+  emits: [
+    "update:email",
+    "update:password",
+    "update:username",
+    "update:repeatPassword",
+  ],
   data() {
     return {
+      usernameModel: this.username,
       emailModel: this.email,
       passwordModel: this.password,
       repeatPasswordModel: this.repeatPassword,

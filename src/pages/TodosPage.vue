@@ -42,7 +42,7 @@
               src="../../src/assets/img/pannier.svg"
               alt="delete"
               class="delete"
-              @click="deleteTodo(todo.id)"
+              @click="deleteTodo(todo.ids)"
             />
           </div>
         </div>
@@ -60,6 +60,11 @@ import { axiosInstance } from "@/api/axiosInstance";
 export default {
   name: "MainPage",
   props: {
+    isEditModalOpen: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
     user: {
       type: Object,
       required: true,
@@ -69,12 +74,12 @@ export default {
   data() {
     return {
       title: "",
-      inputValue: "123",
+      inputValue: "",
       todos: [],
       currentTodo: null,
       isDone: false,
       count: 0,
-      isEditModalOpen: false,
+      titleValue: "",
     };
   },
   created() {
@@ -132,7 +137,7 @@ export default {
         this.isDone = false;
         console.log(false);
       }
-      fetch(`http://localhost:1000/api/todo/${id}`, {
+      fetch(`http://localhost:1000/api/todos/${id}`, {
         method: "PUT",
         body: JSON.stringify({
           title: this.todos[indx].title,
@@ -140,20 +145,19 @@ export default {
         }),
         headers: {
           "Content-Type": "application/json",
+          "user-id": this.user.id,
         },
       })
         .then((response) => response.json())
         .then(() => this.getTodos(id));
     },
     openModal() {
-      this.isEditModalOpen = true;
-    },
-    closeEditModal() {
-      this.isEditModalOpen = false;
+      this.$emit("open-edit");
     },
     deleteTodo(id) {
-      fetch(`http://localhost:1000/api/todo/${id}`, {
+      fetch(`http://localhost:1000/api/todos/${id}`, {
         method: "DELETE",
+        headers: { "user-id": this.user.id },
       }).then(() => this.getTodos());
     },
   },

@@ -1,7 +1,12 @@
 <template>
-  <app-header :user="user" />
+  <app-header :user="user" @open-singin="onClose" />
 
-  <todos-page v-if="user" :user="user" />
+  <todos-page
+    v-if="user"
+    :user="user"
+    :isEditModalOpen="isEditModalOpen"
+    @open-edit="onEditClose"
+  />
 
   <modal-window :is-open="isAuthModalOpen" :title="modalTitle" @close="onClose">
     <sign-in-form
@@ -11,8 +16,10 @@
     />
     <sign-up-form
       v-else-if="action === 'sign-up'"
-      v-model:email="signInForm.email"
-      v-model:password="signInForm.password"
+      v-model:username="signUpForm.username"
+      v-model:email="signUpForm.email"
+      v-model:password="signUpForm.password"
+      v-model:repeat-password="signUpForm.repeatPassword"
     />
 
     <template v-slot:footer>
@@ -35,15 +42,19 @@
       </div>
     </template>
   </modal-window>
+  <modal-window-edit-todo :isEditModalOpen="isEditModalOpen" />
 </template>
 
 <script>
+let action;
+
 import AppHeader from "@/components/AppHeader.vue";
 import TodosPage from "@/pages/TodosPage.vue";
 import ModalWindow from "@/components/ModalWindow.vue";
 import { AppButton, AppInput } from "@/components/ui";
 import SignInForm from "@/components/SignInForm";
 import SignUpForm from "@/components/SignUpForm";
+import modalWindowEditTodo from "@/components/ModalWindowEditTodo";
 
 import { axiosInstance } from "@/api/axiosInstance";
 
@@ -51,15 +62,24 @@ export default {
   components: {
     AppHeader,
     TodosPage,
-    ModalWindow,
     AppButton,
+    ModalWindow,
     SignInForm,
     SignUpForm,
+    modalWindowEditTodo,
   },
   data() {
     return {
+      token: [],
+      isEditModalOpen: false,
       user: null,
-      isAuthModalOpen: true,
+      isAuthModalOpen: false,
+      signUpForm: {
+        username: "",
+        email: "",
+        password: "",
+        repeatPassword: "",
+      },
       signInForm: {
         email: "egit@mail.ru",
         password: "123456",
@@ -86,10 +106,34 @@ export default {
   },
   methods: {
     onClose() {
+      console.log(123);
       this.isAuthModalOpen = !this.isAuthModalOpen;
     },
+    onEditClose() {
+      this.isEditModalOpen = !this.isEditModalOpen;
+    },
     signUp() {
-      console.log(123);
+      if (this.signUpForm.repeatPassword === this.signUpForm.password) {
+        const payload = {
+          username: this.signUpForm.username,
+          email: this.signUpForm.email,
+          password: this.signUpForm.password,
+        };
+
+        axiosInstance
+          .post("sign-up", payload)
+          .then((response) => {
+            console.log(response);
+            this.user = response.user.data;
+            this.token.push(response.headers.authorization.token);
+            this.onClose();
+          })
+          .catch((axiosError) => {
+            console.error(`Ошибка: ${axiosError.response.user.data}`);
+          });
+      } else {
+        console.error("Паполь не верен повтору паролю");
+      }
     },
     signIn() {
       const payload = {
@@ -104,7 +148,7 @@ export default {
           this.onClose();
         })
         .catch((axiosError) => {
-          console.error(`Ашипка: ${axiosError.response.data}`);
+          console.error(`Ошибка: ${axiosError.response.candidate.data}`);
         });
     },
   },
