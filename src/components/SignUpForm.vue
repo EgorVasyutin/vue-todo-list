@@ -68,6 +68,9 @@ export default {
     };
   },
   watch: {
+    usernameModel() {
+      this.$emit("update:username", this.usernameModel);
+    },
     emailModel() {
       this.$emit("update:email", this.emailModel);
     },

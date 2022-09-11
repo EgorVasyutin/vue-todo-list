@@ -1,18 +1,27 @@
 <template>
-  <!--  <div class="modal-overlay" :style="{ display: isOpen ? 'flex' : 'none' }">-->
   <div v-show="isEditModalOpen" class="modal-overlay" @open-edit="close">
     <div v-if="true" class="modal">
-      <div class="modal-text">Редактировать задачу</div>
+      <div class="container">
+        <div class="modal-text">Редактировать задачу</div>
+        <div class="close" @click="close">
+          <img src="@/assets/img/close.svg" alt="close" />
+        </div>
+      </div>
+      <div class="input-text">Название задачи</div>
       <input
         class="modal-input"
         :value="inputValue"
         @input="(event) => (inputValue = event.target.value)"
       />
       <div class="modal-actions">
-        <app-button class="modal-btm redact" @click="editTodo(todo.id)">
+        <app-button
+          type="primary"
+          class="modal-btm redact"
+          @click="editTodo(todo.id, isDone)"
+        >
           Редактировать
         </app-button>
-        <app-button @click="close">Отмена</app-button>
+        <app-button @click="close" type="secondary">Отмена</app-button>
       </div>
     </div>
   </div>
@@ -20,10 +29,16 @@
 
 <script>
 import { AppButton, AppInput } from "@/components/ui";
+import axiosInstance from "@/api/axiosInstance";
 export default {
   name: "ModalWindow",
   components: { AppButton },
   props: {
+    isDone: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
     isEditModalOpen: {
       type: Boolean,
       required: false,
@@ -53,19 +68,9 @@ export default {
     close() {
       this.$emit("close-modal");
     },
-    editTodo(id) {
-      fetch(`http://localhost:1000/api/todos/${id}`, {
-        method: "PUT",
-        body: JSON.stringify({
-          title: this.inputValue,
-          isDone: this.isDone,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-          "user-id": this.user.id,
-        },
-      })
-        .then((response) => response.json())
+    editTodo(id, isDone) {
+      axiosInstance
+        .put(`todos/${id}`, { title: this.inputValue, isDone })
         .then(() => {
           this.$emit("update-todo");
           this.close();
@@ -76,9 +81,27 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.input-text {
+  font: 14px "lato-regular", sans-serif;
+  color: #5a5a5a;
+  line-height: 17px;
+  padding: 15px 0 0 15px;
+}
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 0 0 15px;
+  margin-bottom: 10px;
+
+  .close {
+    padding-right: 15px;
+    cursor: pointer;
+  }
+}
 .modal {
   width: 500px;
-  height: 170px;
+  height: 207px;
   background-color: #fff;
   z-index: 2;
   margin-top: 200px;
@@ -86,13 +109,13 @@ export default {
   opacity: 1;
 
   &-text {
-    font: 14px "lato-regular", sans-serif;
-    color: #5a5a5a;
-    padding: 15px 0 0 15px;
+    font: bold 24px "lato-bold", sans-serif;
+    line-height: 32px;
+    color: black;
   }
   &-input {
     width: 70%;
-    margin: 15px 0 0 15px;
+    margin: 2px 0 0 15px;
     padding: 12px 16px 13px;
     background-color: #f3f3f3;
     outline: none;

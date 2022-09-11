@@ -17,6 +17,8 @@
 </template>
 
 <script>
+import { axiosInstance } from "@/api/axiosInstance";
+
 export default {
   name: "AppHeader",
   props: {
@@ -27,7 +29,6 @@ export default {
   },
   methods: {
     openModal() {
-      console.log(213);
       this.$emit("open-singin");
     },
   },

@@ -26,7 +26,7 @@
               type="checkbox"
               class="todo__checkbox"
               :checked="todo.isDone"
-              @click="isDoneController(todo.id, indx)"
+              @click="onCheckboxInput(todo.id, indx)"
             />
             <div class="checkbox"></div>
             <div class="todo__text">{{ todo.title }}</div>
@@ -42,7 +42,7 @@
               src="../../src/assets/img/pannier.svg"
               alt="delete"
               class="delete"
-              @click="deleteTodo(todo.ids)"
+              @click="deleteTodo(todo.id)"
             />
           </div>
         </div>
@@ -54,12 +54,17 @@
 
 <script>
 import ModalWindow from "@/components/ModalWindowEditTodo";
+import plugin from "@/store/plugin";
 
 import { axiosInstance } from "@/api/axiosInstance";
 
 export default {
   name: "MainPage",
   props: {
+    todos: {
+      type: Array,
+      required: true,
+    },
     isEditModalOpen: {
       type: Boolean,
       required: false,
@@ -75,9 +80,7 @@ export default {
     return {
       title: "",
       inputValue: "",
-      todos: [],
       currentTodo: null,
-      isDone: false,
       count: 0,
       titleValue: "",
     };
@@ -87,41 +90,16 @@ export default {
   },
   methods: {
     getTodos() {
-      axiosInstance
-        .get("todos", {
-          headers: { "user-id": this.user.id },
-        })
-        .then((response) => {
-          this.todos = response.data;
-          this.todos.sort((a, b) => (a.id > b.id ? 1 : -1));
-        });
+      this.$emit("update-todo");
     },
     onInput(event) {
       this.inputValue = event.target.value;
     },
     addNewTodo() {
       if (this.inputValue.length !== 0) {
-        const payload = {
-          title: this.inputValue,
-          isDone: false,
-        };
-
-        axiosInstance
-          .post("todos", payload, {
-            headers: { "user-id": this.user.id },
-          })
+        this.$myStore
+          .newTodo(this.inputValue, false)
           .then(() => this.getTodos());
-
-        // fetch("http://localhost:1000/api/todo", {
-        //   method: "POST",
-        //   body: JSON.stringify({
-        //     title: this.inputValue,
-        //     isDone: false,
-        //   }),
-        //   headers: {
-        //     "Content-Type": "application/json",
-        //   },
-        // });
         this.inputValue = "";
       }
     },
@@ -129,36 +107,19 @@ export default {
       this.currentTodo = todo;
       this.openModal();
     },
-    isDoneController(id, indx) {
-      if (!this.todos[indx].isDone) {
-        this.isDone = true;
-        console.log(true);
-      } else {
-        this.isDone = false;
-        console.log(false);
-      }
-      fetch(`http://localhost:1000/api/todos/${id}`, {
-        method: "PUT",
-        body: JSON.stringify({
-          title: this.todos[indx].title,
-          isDone: this.isDone,
-        }),
-        headers: {
-          "Content-Type": "application/json",
-          "user-id": this.user.id,
-        },
-      })
-        .then((response) => response.json())
+    onCheckboxInput(id) {
+      const todo = this.todos.find((todo) => todo.id === id);
+      todo.isDone = !todo.isDone;
+      this.$myStore
+        .updateTodo(todo.title, todo.isDone, todo.id)
         .then(() => this.getTodos(id));
     },
     openModal() {
       this.$emit("open-edit");
+      this.$emit("currentTodo", this.currentTodo, this.isDone);
     },
     deleteTodo(id) {
-      fetch(`http://localhost:1000/api/todos/${id}`, {
-        method: "DELETE",
-        headers: { "user-id": this.user.id },
-      }).then(() => this.getTodos());
+      this.$myStore.deleteTodo(id).then(() => this.getTodos());
     },
   },
 };

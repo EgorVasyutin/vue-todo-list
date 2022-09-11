@@ -1,14 +1,21 @@
 <template>
-  <app-header :user="user" @open-singin="onClose" />
+  <app-header :user="user" @open-singin="openAuthModal" />
 
   <todos-page
     v-if="user"
     :user="user"
+    :todos="todos"
     :isEditModalOpen="isEditModalOpen"
     @open-edit="onEditClose"
+    @currentTodo="currentTodoInTodo"
+    @update-todo="getTodos"
   />
 
-  <modal-window :is-open="isAuthModalOpen" :title="modalTitle" @close="onClose">
+  <modal-window
+    :is-open="isAuthModalOpen"
+    :title="modalTitle"
+    @close="closeAuthModal"
+  >
     <sign-in-form
       v-if="action === 'sign-in'"
       v-model:email="signInForm.email"
@@ -42,7 +49,13 @@
       </div>
     </template>
   </modal-window>
-  <modal-window-edit-todo :isEditModalOpen="isEditModalOpen" />
+  <modal-window-edit-todo
+    :isEditModalOpen="isEditModalOpen"
+    :todo="todo"
+    :is-done="isDone"
+    @update-todo="getTodos"
+    @close-modal="onEditClose"
+  />
 </template>
 
 <script>
@@ -70,7 +83,10 @@ export default {
   },
   data() {
     return {
-      token: [],
+      todos: [],
+      isDone: false,
+      todo: null,
+      token: "",
       isEditModalOpen: false,
       user: null,
       isAuthModalOpen: false,
@@ -81,11 +97,22 @@ export default {
         repeatPassword: "",
       },
       signInForm: {
-        email: "egit@mail.ru",
-        password: "123456",
+        email: "vaspovas@gmail.com",
+        password: "123123",
       },
       action: "sign-in",
     };
+  },
+  created() {
+    this.$myStore
+      .checkAuth()
+      .then(() => {
+        this.user = this.$myStore.user;
+        this.isAuthModalOpen = !this.user;
+      })
+      .catch(() => {
+        this.openAuthModal();
+      });
   },
   computed: {
     modalTitle() {
@@ -105,50 +132,59 @@ export default {
     },
   },
   methods: {
-    onClose() {
-      console.log(123);
-      this.isAuthModalOpen = !this.isAuthModalOpen;
+    logout() {
+      this.$myStore.logout();
+      this.user = null;
     },
+    getTodos() {
+      const authHeader = `Bearer ${localStorage.getItem("accessToken")}`;
+
+      this.$myStore.getTodos().then((response) => {
+        this.todos = response.data;
+        this.todos.sort((a, b) => (a.id > b.id ? 1 : -1));
+      });
+    },
+    currentTodoInTodo(todo, isDone) {
+      this.isDone = isDone;
+      this.todo = todo;
+    },
+    openAuthModal() {
+      this.logout();
+      this.isAuthModalOpen = true;
+    },
+
+    closeAuthModal() {
+      this.isAuthModalOpen = false;
+    },
+
     onEditClose() {
       this.isEditModalOpen = !this.isEditModalOpen;
     },
     signUp() {
-      if (this.signUpForm.repeatPassword === this.signUpForm.password) {
-        const payload = {
-          username: this.signUpForm.username,
-          email: this.signUpForm.email,
-          password: this.signUpForm.password,
-        };
-
-        axiosInstance
-          .post("sign-up", payload)
-          .then((response) => {
-            console.log(response);
-            this.user = response.user.data;
-            this.token.push(response.headers.authorization.token);
-            this.onClose();
-          })
-          .catch((axiosError) => {
-            console.error(`Ошибка: ${axiosError.response.user.data}`);
-          });
-      } else {
-        console.error("Паполь не верен повтору паролю");
-      }
-    },
-    signIn() {
-      const payload = {
-        email: this.signInForm.email,
-        password: this.signInForm.password,
-      };
-
-      axiosInstance
-        .post("sign-in", payload)
-        .then((response) => {
-          this.user = response.data;
-          this.onClose();
+      this.$myStore
+        .registration(
+          this.signUpForm.username,
+          this.signUpForm.email,
+          this.signUpForm.password
+        )
+        .then(() => {
+          this.user = this.$myStore.user;
+          this.closeAuthModal();
         })
-        .catch((axiosError) => {
-          console.error(`Ошибка: ${axiosError.response.candidate.data}`);
+        .catch((e) => {
+          console.log(e);
+        });
+    },
+
+    signIn() {
+      this.$myStore
+        .login(this.signInForm.email, this.signInForm.password)
+        .then(() => {
+          this.user = this.$myStore.user;
+          this.closeAuthModal();
+        })
+        .catch((e) => {
+          console.log(e);
         });
     },
   },
